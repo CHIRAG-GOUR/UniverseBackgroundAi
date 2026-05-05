@@ -41,9 +41,12 @@ const createCircleTexture = () => {
 };
 const starTexture = createCircleTexture();
 
+// Mobile performance optimization
+const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
 // Universe Starfield Generation
 const starsGeometry = new THREE.BufferGeometry();
-const starCount = 15000; // Slightly lower for better performance on all devices
+const starCount = isMobile ? 3000 : 15000; // Lower for better performance on mobile
 const posArray = new Float32Array(starCount * 3);
 const colorsArray = new Float32Array(starCount * 3);
 
@@ -93,10 +96,24 @@ let targetY = 0;
 const windowHalfX = window.innerWidth / 2;
 const windowHalfY = window.innerHeight / 2;
 
-document.addEventListener('mousemove', (event) => {
-    mouseX = (event.clientX - windowHalfX);
-    mouseY = (event.clientY - windowHalfY);
-});
+const handlePointer = (clientX: number, clientY: number) => {
+    mouseX = (clientX - windowHalfX);
+    mouseY = (clientY - windowHalfY);
+};
+
+document.addEventListener('mousemove', (event) => handlePointer(event.clientX, event.clientY));
+
+document.addEventListener('touchstart', (event) => {
+    if (event.touches.length > 0) {
+        handlePointer(event.touches[0].clientX, event.touches[0].clientY);
+    }
+}, { passive: true });
+
+document.addEventListener('touchmove', (event) => {
+    if (event.touches.length > 0) {
+        handlePointer(event.touches[0].clientX, event.touches[0].clientY);
+    }
+}, { passive: true });
 
 // Resize Handler
 window.addEventListener('resize', () => {
